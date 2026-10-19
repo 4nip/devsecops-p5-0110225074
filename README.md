@@ -1,81 +1,87 @@
-# SecureTask — DevSecOps Pipeline Demo
+## SecureTask — Demonstrasi Pipeline DevSecOps
+Aplikasi manajemen tugas berbasis Command-Line Interface (CLI) sederhana yang dibangun menggunakan Python. Repositori ini mendemonstrasikan penerapan pipeline DevSecOps dasar menggunakan GitHub Actions, pytest, Bandit SAST, dan aturan Quality Gate kustom.
 
-A small command-line task manager built with Python. This repository demonstrates a basic DevSecOps pipeline using GitHub Actions, pytest, Bandit SAST, and a custom Quality Gate.
+## Fitur Utama
+- Menambahkan tugas dengan validasi input
+- Menampilkan daftar tugas
+- Menandai tugas yang telah selesai
+- Menolak judul tugas yang kosong
+- Memisahkan logika aplikasi dari interaksi CLI 
 
-## Features
-- Add a task with input validation
-- List tasks
-- Mark a task complete
-- Reject empty task titles
-- Keep application logic separate from CLI interaction
-
-## Requirements
-- Python 3.11 or newer
+## Persyaratan Sistem
+- Python 3.11 atau versi yang lebih baru
 - pip
 
-## Run locally
-```bash
+## Menjalankan Aplikasi Secara Lokal
+
 python -m venv .venv
+
 # Windows PowerShell:
-.\.venv\Scripts\Activate.ps1
+.\\.venv\\Scripts\\Activate.ps1
+
 # macOS/Linux:
 source .venv/bin/activate
 
 python -m pip install -r requirements.txt
 python -m securetask
-```
 
-## Run tests
-```bash
+## Menjalankan Unit Test
+
 python -m pytest -v
-```
 
-## Run the SAST scan and Quality Gate locally
-```bash
+## Menjalankan SAST Scan dan Quality Gate Secara Lokal
+
 python -m pip install -r requirements-dev.txt
 python -m bandit -r securetask -f json -o bandit-report.json
-python scripts/quality_gate.py bandit-report.json
-```
+python scripts/quality\_gate.py bandit-report.json
 
-Bandit may return a non-zero exit code when findings are present. To ensure the JSON report is still evaluated by the custom gate, use:
-```bash
+## Bandit dapat mengembalikan exit code non-nol jika ditemukan potensi kerentanan. Untuk memastikan laporan JSON tetap dievaluasi oleh Quality Gate, gunakan perintah berikut di Bash/Linux:
+
 python -m bandit -r securetask -f json -o bandit-report.json || true
-python scripts/quality_gate.py bandit-report.json
-```
-In PowerShell, if needed, run the Bandit command and then the gate command separately.
+python scripts/quality\_gate.py bandit-report.json
 
-## Pipeline overview
-The workflow in `.github/workflows/devsecops.yml` runs on:
-- `push` to `main`
-- `pull_request` targeting `main`
+## Pada lingkungan PowerShell, jalankan perintah Bandit dan skrip Quality Gate secara terpisah.
 
-It contains two separate jobs:
-1. **build** — installs dependencies and runs unit tests.
-2. **sast-scan** — runs Bandit and evaluates its JSON report with a Quality Gate. This job depends on `build`.
+## Pengujian Simulasi Pemblokiran Quality Gate
+Aturan Quality Gate dikonfigurasi untuk memblokir proses build jika terdapat temuan dengan kriteria HIGH severity dan HIGH confidence. Untuk menguji mekanisme ini secara lokal:
+Buat file laporan simulasi:
 
-The Quality Gate is configured to fail when Bandit reports at least one **HIGH severity, HIGH confidence** finding. This is a simple demonstration policy, not a guarantee that the application is completely secure.
+## powershell
+   Set-Content -Path gate-test.json -Value '{"results":\[{"issue\_severity":"HIGH","issue\_confidence":"HIGH","issue\_text":"Simulated finding for Quality Gate test","filename":"test\_simulation.py","line\_number":1}]}' -Encoding Ascii
+  
+## Jalankan skrip Quality Gate:
+powershell
+   python scripts/quality\_gate.py gate-test.json
+   
+## Periksa kode keluar (exit code):
+powershell
+   $LASTEXITCODE
+   # Mengembalikan nilai 1 (menandakan Quality Gate gagal/FAILED)
+   
+## Hapus file simulasi:
+powershell
+   Remove-Item gate-test.json
+   
 
-## Repository structure
-```text
+## Struktur Repositori
+text
 securetask/
-  __init__.py
-  __main__.py
+  \_\_init\_\_.py
+  \_\_main\_\_.py
   cli.py
   models.py
   service.py
   validators.py
 tests/
-  test_service.py
+  test\_service.py
 scripts/
-  quality_gate.py
+  quality\_gate.py
 .github/workflows/
   devsecops.yml
 requirements.txt
 requirements-dev.txt
 README.md
-```
 
-## Notes
-- Do not commit secrets, access tokens, or passwords.
-- A passing SAST scan does not prove that an application has no vulnerabilities.
-- GitHub Actions runs remotely on a GitHub-hosted runner; no server deployment is performed by this demo.
+
+Informasi Repositori
+Repositori GitHub: [text](https://github.com/4nip/devsecops-p5-0110225074)
